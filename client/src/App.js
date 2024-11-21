@@ -5,6 +5,9 @@ import HomePage from './pages/HomePage.jsx'
 import { useRoutes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import CreateGroup from './pages/CreateGroup.js';
+import GroupDetails from './pages/GroupDetails.js';
+import Header from './components/Header.js';
+import AddSession from './pages/AddSession.jsx';
 
 
 
@@ -12,6 +15,7 @@ function App() {
 
   const API_URL = 'http://localhost:4000'
   const [user, setUser] = useState();
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -19,8 +23,16 @@ function App() {
       const json = await response.json()
       setUser(json.user)
     }
+
+    const fetchGroups = async () => {
+      const response = await fetch("http://localhost:4000/api/groups");
+      const data = await response.json();
+      console.log(data);
+      setGroups(data);
+    };
     
     getUser()
+    fetchGroups();
   }, [])
 
 
@@ -28,18 +40,34 @@ function App() {
     {
     path: '/',
     element: user && user.id ?
-      <HomePage /> : <LoginPage api_url={API_URL} />
+      <HomePage user={user} data={groups}/> : <LoginPage api_url={API_URL} />
     },
     {
       path: '/groups/new',
       element: user && user.id ?
         <CreateGroup user={user} api_url={API_URL} /> : <LoginPage api_url={API_URL} />
+    },
+    {
+      path: '/groups/get/:id',
+      element: user && user.id ?
+          <GroupDetails user={user} data={groups} api_url={API_URL} /> : <LoginPage api_url={API_URL} />
+    },
+    {
+      path: '/groups/edit/:id',
+      element: user && user.id ?
+          <GroupDetails user={user} data={groups} api_url={API_URL} /> : <LoginPage api_url={API_URL} />
+    },
+    {
+      path: '/sessions/new/:id',
+      element: user && user.id ?
+          <AddSession user={user} data={groups} api_url={API_URL} /> : <LoginPage api_url={API_URL} />
     }
   ])
 
 
   return (
     <div className="App">
+      <Header />
       {element} 
     </div>
   );
